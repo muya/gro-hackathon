@@ -85,7 +85,7 @@ class NassUtils(object):
                 curr_year_data = self.fetch_records(nass_query)
 
             all_data = all_data + curr_year_data
-            break
+            # break
 
         return all_data
 
