@@ -72,7 +72,8 @@ def main(argv):
                   '--database_user [default is "{}"]\n ' \
                   '--database_pass [default is "{}"]\n ' \
                   '--start_date [default is "{}"]\n ' \
-                  '--end_date [default is "{}"]\n'.format(database_host, database_name, database_user,
+                  '--end_date [default is "{}"]\n' \
+                  '--api_key'.format(database_host, database_name, database_user,
                                                       "****", start_date, end_date)
             sys.exit()
         elif opt in ("--database_host"):

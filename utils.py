@@ -119,7 +119,8 @@ class NassUtils(object):
                 fetched_data = self.fetch_data_in_annual_batches(
                     nass_query, total_years)
         else:
-            fetched_data = self.fetch_data_in_single_batch(nass_query, total_years)
+            print "Data will be fetched in a single batch"
+            fetched_data = self.fetch_data_in_single_batch(nass_query)
 
         # print fetched_data
         print "Record count: %s" % len(fetched_data)
