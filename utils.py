@@ -121,5 +121,5 @@ class NassUtils(object):
         else:
             fetched_data = self.fetch_data_in_single_batch(nass_query, total_years)
 
-        print fetched_data
+        # print fetched_data
         print "Record count: %s" % len(fetched_data)

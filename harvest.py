@@ -92,7 +92,7 @@ def main(argv):
             api_key_given = True
 
     if not api_key_given:
-        print "Please specify API key using --api-key"
+        print "Please specify API key using --api_key"
         sys.exit()
 
     begin_nass_harvest(database_host, database_name, database_user, database_password,
