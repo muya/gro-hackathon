@@ -92,7 +92,7 @@ class NassUtils(object):
                     if len(curr_year_data) > 100000:
                         curr_year_partial_filename = "data/%s_%s.json" % (
                             curr_year, state)
-                        with open(curr_year_filename, "w") as f:
+                        with open(curr_year_partial_filename, "w") as f:
                             json.dump(curr_year_data, f)
 
                         curr_year_data = []
