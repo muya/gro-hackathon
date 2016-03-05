@@ -96,7 +96,7 @@ class NassUtils(object):
         total_estimated_rc = int(total_estimated_rc)
         batch_size = 50000
         if nass_query.has_year_range:
-            total_years = nass_query.end_year - nass_query.start_year
+            total_years = (nass_query.end_year - nass_query.start_year) + 1
         else:
             total_years = 1
 
