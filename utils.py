@@ -89,7 +89,12 @@ class NassUtils(object):
             else:
                 curr_year_data = self.fetch_records(nass_query)
 
-            all_data = all_data + curr_year_data
+            # write out curr year data to file
+            curr_year_filename = "data/%s.json" % curr_year
+            with open(curr_year_filename, "w") as f:
+                json.dump(curr_year_data, f)
+
+            # all_data = all_data + curr_year_data
             # break
 
         return all_data
