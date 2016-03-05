@@ -1,9 +1,12 @@
 import sys
 import getopt
 
+import utils
+import nass_query
+
 
 def begin_nass_harvest(database_host, database_name, database_user,
-                       database_password, port, start_date, end_date):
+                       database_password, port, start_date, end_date, api_key):
     print "\nThis is a starter script for the Gro Hackathon's NASS harvest. It meets the API " \
           "requirements defined for the hackathon\n\n"
 
@@ -14,10 +17,27 @@ def begin_nass_harvest(database_host, database_name, database_user,
     print "Database Host: {}".format(database_host)
     print "Database Name: {}".format(database_name)
     print "Database Username: {}".format(database_user)
-    print "Database Password: {}".format(database_password)
+    print "Database Password: {}".format("like I'm gonna show you this :-P")
     print "Database Port (hard-coded): {}".format(port)
     print "Harvest Start Date: {}".format(start_date)
     print "Harvest End Date: {}\n".format(end_date)
+
+    # validate dates
+    print (
+        "DISCLAIMER: POINT-IN-TIME data is not available for all years, "
+        "so if your dates start or end mid-year (e.g. start date 2015-04-01"
+        " end date 2015-09-31, data for the whole of 2015 will be returned"
+        " instead). You have to love API limitations\n\n")
+
+    # build query
+    nq = nass_query.NassQuery()
+    nq.start_date = start_date
+    nq.end_date = end_date
+    nq.validate_dates()
+    nq.build_get_query()
+
+    nass_util = utils.NassUtils(api_key=api_key)
+    nass_util.fetch_data(nq)
 
 
 # #################################################
@@ -26,7 +46,7 @@ def begin_nass_harvest(database_host, database_name, database_user,
 def main(argv):
     try:
         opts, args = getopt.getopt(argv, "h", ["database_host=", "database_name=", "start_date=",
-                                               "database_user=", "database_pass=", "end_date="])
+                                               "database_user=", "database_pass=", "end_date=", "api_key="])
     except getopt.GetoptError:
         print 'Flag error. Probably a mis-typed flag. Make sure they start with "--". Run python ' \
               'harvest.py -h'
@@ -40,6 +60,7 @@ def main(argv):
     database_password = 'gro123'
     start_date = '2005-1-1'
     end_date = '2015-12-31'
+    api_key_given = False
 
     for opt, arg in opts:
         if opt == '-h':
@@ -66,9 +87,16 @@ def main(argv):
             start_date = arg
         elif opt in ("--end_date"):
             end_date = arg
+        elif opt in ("--api_key"):
+            api_key = arg
+            api_key_given = True
+
+    if not api_key_given:
+        print "Please specify API key using --api-key"
+        sys.exit()
 
     begin_nass_harvest(database_host, database_name, database_user, database_password,
-                       port, start_date, end_date)
+                       port, start_date, end_date, api_key)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
