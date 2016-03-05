@@ -86,10 +86,21 @@ class NassUtils(object):
                     curr_year_data = (
                         curr_year_data + curr_state_data)
                     del(nass_query.get_payload["state_alpha"])
+
+                    # if curr year data has exceeded 150000, write out and
+                    # empty array
+                    if len(curr_year_data) > 100000:
+                        curr_year_partial_filename = "data/%s_%s.json" % (
+                            curr_year, state)
+                        with open(curr_year_filename, "w") as f:
+                            json.dump(curr_year_data, f)
+
+                        curr_year_data = []
             else:
                 curr_year_data = self.fetch_records(nass_query)
 
-            # write out curr year data to file
+            # write out curr year data to file if we've reached 150k yearly,
+            # or if this is the last one
             curr_year_filename = "data/%s.json" % curr_year
             with open(curr_year_filename, "w") as f:
                 json.dump(curr_year_data, f)
