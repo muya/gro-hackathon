@@ -93,7 +93,7 @@ class NassUtils(object):
         # determine how many calls will be required to ensure we fetch all
         # data in batches of max 50k
         total_estimated_rc = self.fetch_record_count(nass_query)
-        batch_estimated_rc = int(total_estimated_rc)
+        total_estimated_rc = int(total_estimated_rc)
         batch_size = 50000
         if nass_query.has_year_range:
             total_years = nass_query.end_year - nass_query.start_year
@@ -102,13 +102,13 @@ class NassUtils(object):
 
         print "total years: %s" % total_years
 
-        if batch_estimated_rc > batch_size:
+        if total_estimated_rc > batch_size:
             # let's try to split time period into no. of periods that *might*
             # have 50k records each
 
             # if time periods are > total no. of years, we may have to process
             # by state
-            possible_time_periods = int(batch_estimated_rc / batch_size) + 1
+            possible_time_periods = int(total_estimated_rc / batch_size) + 1
 
             if possible_time_periods > total_years:
                 print "More than %s records per year, we'll process by state" % batch_size
