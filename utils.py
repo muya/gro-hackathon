@@ -71,7 +71,10 @@ class NassUtils(object):
             if "year__LE" in nass_query.get_payload:
                 del(nass_query.get_payload["year__LE"])
 
-            if fetch_by_state:
+            # double check that records for this particular year are > 50k
+            curr_year_data_len = self.fetch_record_count(nass_query)
+
+            if fetch_by_state and (curr_year_data_len > 50000):
                 curr_year_data = []
                 for state in constants.states_list:
                     curr_state_data = []
