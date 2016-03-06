@@ -35,8 +35,9 @@ class NassJSONDataProcessor(object):
                 dbname, user=dbuser, password=dbpass, host=dbhost, port=dbport)
             self.db.connect()
             models.database_proxy.initialize(self.db)
-            self.db.drop_table(models.FactData, fail_silently=True)
-            self.db.create_table(models.FactData)
+            with self.db.atomic as txn:
+                self.db.drop_table(models.FactData, fail_silently=True)
+                self.db.create_table(models.FactData)
             print "Database initialized successfully"
         except Exception, e:
             print "Sorry, an error occurred while connecting to the db: %s" % e
