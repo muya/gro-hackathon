@@ -108,14 +108,17 @@ class NassUtils(object):
                     curr_state_data = []
                     nass_query.get_payload["state_alpha"] = state
                     # first count approx records per state
-                    curr_state_record_count = self.fetch_record_count(
-                        nass_query)
+                    curr_state_record_count = int(self.fetch_record_count(
+                        nass_query))
                     print "Record count for state [%s]: %s" % (
                         state, curr_state_record_count)
 
                     if curr_state_record_count <= 50000:
                         curr_state_data = self.fetch_records(nass_query)
                     else:
+                        print (
+                            "Will process %s state data in Ag Districts" % (
+                                state))
                         # we have to go by Ag district :-(
                         # use pre-downloaded list
                         for asd in constants.ag_districts:
