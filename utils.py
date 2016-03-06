@@ -32,7 +32,7 @@ class NassUtils(object):
         # key is required in all calls
         payload["key"] = self.nass_api_key
 
-        print "Calling %s with params: %s" % (url, payload)
+        # print "Calling %s with params: %s" % (url, payload)
 
         try:
             if http_method == "GET":

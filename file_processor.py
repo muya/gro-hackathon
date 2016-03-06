@@ -54,9 +54,13 @@ class NassJSONDataProcessor(object):
                 asyncore.loop(*args, **kwargs)
 
                 continue_processing = True
+
+                # this will decide how many times to retry processing of a file
+                # especially when we try to fetch data from a file when it's
+                # only been partially written after fetching
                 failed_tries = 0
 
-                while continue_processing and failed_tries < 3:
+                while continue_processing and failed_tries < 5:
                     try:
                         time.sleep(3)
                         files_processed = self.process_data_files()
@@ -68,6 +72,10 @@ class NassJSONDataProcessor(object):
                         print "Exception while processing data files: \n%s" % e
                         print "Exception thrown while processing data file... will retry..."
                         failed_tries = failed_tries + 1
+                        # since exception was probably due to incomplete data
+                        # let's sleep a little to ensure all the data is
+                        # written to the file
+                        time.sleep(2)
                         continue
 
                 print (
@@ -106,7 +114,7 @@ class NassJSONDataProcessor(object):
         """
         Handles overall data processing logic
         """
-        print "JSON Data processing ..."
+        print "Starting JSON Data processing ..."
         # check if there are files to be processed
         data_dir = "./%s" % self.util.data_dir
         files_to_process = []
@@ -129,6 +137,7 @@ class NassJSONDataProcessor(object):
             curr_data = self.util.load_json_file_data(filepath)
             save_res = self.save_facts_data(curr_data)
             os.remove(filepath)
+            print "Processing %s complete!" % file
 
         return True
 
