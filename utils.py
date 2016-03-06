@@ -116,7 +116,7 @@ class NassUtils(object):
 
                     # if curr year data has exceeded 150000, write out and
                     # empty array
-                    if len(curr_year_data) > 100000:
+                    if len(curr_year_data) > 50000:
                         curr_year_partial_filename = "%s%s_%s.json" % (
                             self.data_dir, curr_year, state)
                         self.write_out_json_data(
