@@ -9,7 +9,7 @@ class BaseModel(Model):
         database = database_proxy
 
 
-class FactData(Model):
+class FactData(BaseModel):
     """
     FactData model
     """

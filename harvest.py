@@ -5,10 +5,14 @@ import os
 
 import utils
 import nass_query
+import constants
 
 
 def begin_nass_harvest(database_host, database_name, database_user,
                        database_password, port, start_date, end_date, api_key):
+
+    # create lock file to show that this process is running
+    utils.touch(constants.HARVEST_LOCK_FILE)
     print (
         "\nThis is a starter script for the Gro Hackathon's NASS harvest. "
         "It meets the API requirements defined for the hackathon\n\n")
@@ -55,6 +59,8 @@ def begin_nass_harvest(database_host, database_name, database_user,
 
     nass_util = utils.NassUtils(api_key=api_key)
     nass_util.fetch_data(nq)
+
+    os.remove(constants.HARVEST_LOCK_FILE)
 
 
 # #################################################

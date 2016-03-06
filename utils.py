@@ -2,6 +2,15 @@ import requests
 import json
 import constants
 import hashlib
+import os
+
+
+def touch(path):
+    """
+    touches a file
+    """
+    with open(path, 'a'):
+        os.utime(path, None)
 
 
 class NassUtils(object):
