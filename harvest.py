@@ -1,5 +1,7 @@
 import sys
 import getopt
+import subprocess
+import os
 
 import utils
 import nass_query
@@ -7,8 +9,9 @@ import nass_query
 
 def begin_nass_harvest(database_host, database_name, database_user,
                        database_password, port, start_date, end_date, api_key):
-    print "\nThis is a starter script for the Gro Hackathon's NASS harvest. It meets the API " \
-          "requirements defined for the hackathon\n\n"
+    print (
+        "\nThis is a starter script for the Gro Hackathon's NASS harvest. "
+        "It meets the API requirements defined for the hackathon\n\n")
 
     print "Run 'python harvest.py -h' for help\n\n"
     print "Feel free to edit the entirety of this start script\n"
@@ -36,6 +39,19 @@ def begin_nass_harvest(database_host, database_name, database_user,
     nq.validate_dates()
     nq.build_get_query()
 
+    # start file processor
+    print "Starting JSON data file processor in the background..."
+    # get current dir
+    curr_dir = os.path.dirname(os.path.realpath(__file__))
+    file_proc_command = "%s/env/bin/python %s/file_processor.py" % (
+        curr_dir, curr_dir)
+
+    # this will run asynchronously to process the annual json data files
+    # generated later in the process
+    # chunking the downloaded data annually helps reduce memory load on
+    # the server
+    subprocess.Popen(file_proc_command, shell=True, close_fds=True)
+
     nass_util = utils.NassUtils(api_key=api_key)
     nass_util.fetch_data(nq)
 
@@ -45,11 +61,13 @@ def begin_nass_harvest(database_host, database_name, database_user,
 # #################################################
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv, "h", ["database_host=", "database_name=", "start_date=",
-                                               "database_user=", "database_pass=", "end_date=", "api_key="])
+        opts, args = getopt.getopt(argv, "h", [
+            "database_host=", "database_name=", "start_date=",
+            "database_user=", "database_pass=", "end_date=", "api_key="])
     except getopt.GetoptError:
-        print 'Flag error. Probably a mis-typed flag. Make sure they start with "--". Run python ' \
-              'harvest.py -h'
+        print (
+            "Flag error. Probably a mis-typed flag. Make sure they start "
+            "with '--'. Run python harvest.py -h")
         sys.exit(2)
 
     # define defaults
@@ -64,7 +82,7 @@ def main(argv):
 
     for opt, arg in opts:
         if opt == '-h':
-            print "\nThis is my harvest script for the Gro Hackathon NASS harvest"
+            print "\nHarvest script for the Gro Hackathon NASS harvest"
             print '\nExample:\npython harvest.py --database_host localhost --database_name gro2\n'
             print '\nFlags (all optional, see defaults below):\n ' \
                   '--database_host [default is "{}"]\n ' \
@@ -72,9 +90,10 @@ def main(argv):
                   '--database_user [default is "{}"]\n ' \
                   '--database_pass [default is "{}"]\n ' \
                   '--start_date [default is "{}"]\n ' \
-                  '--end_date [default is "{}"]\n' \
-                  '--api_key'.format(database_host, database_name, database_user,
-                                                      "****", start_date, end_date)
+                  '--end_date [default is "{}"]\n ' \
+                  '--api_key '.format(database_host, database_name,
+                                     database_user, "****", start_date,
+                                     end_date)
             sys.exit()
         elif opt in ("--database_host"):
             database_host = arg
@@ -94,10 +113,10 @@ def main(argv):
 
     if not api_key_given:
         print "Please specify API key using --api_key"
-        sys.exit()
+        sys.exit(2)
 
-    begin_nass_harvest(database_host, database_name, database_user, database_password,
-                       port, start_date, end_date, api_key)
+    begin_nass_harvest(database_host, database_name, database_user,
+                       database_password, port, start_date, end_date, api_key)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
