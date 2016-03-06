@@ -14,7 +14,6 @@ def begin_nass_harvest(database_host, database_name, database_user,
         "It meets the API requirements defined for the hackathon\n\n")
 
     print "Run 'python harvest.py -h' for help\n\n"
-    print "Feel free to edit the entirety of this start script\n"
 
     print "Supplied Args (some default): "
     print "Database Host: {}".format(database_host)
@@ -43,8 +42,10 @@ def begin_nass_harvest(database_host, database_name, database_user,
     print "Starting JSON data file processor in the background..."
     # get current dir
     curr_dir = os.path.dirname(os.path.realpath(__file__))
-    file_proc_command = "%s/env/bin/python %s/file_processor.py" % (
-        curr_dir, curr_dir)
+    file_proc_command = (
+        "%s/env/bin/python %s/file_processor.py %s %s %s %s %s" % (
+            curr_dir, curr_dir, database_host, database_name, database_user,
+            database_password, port))
 
     # this will run asynchronously to process the annual json data files
     # generated later in the process
@@ -92,8 +93,8 @@ def main(argv):
                   '--start_date [default is "{}"]\n ' \
                   '--end_date [default is "{}"]\n ' \
                   '--api_key '.format(database_host, database_name,
-                                     database_user, "****", start_date,
-                                     end_date)
+                                      database_user, "****", start_date,
+                                      end_date)
             sys.exit()
         elif opt in ("--database_host"):
             database_host = arg
