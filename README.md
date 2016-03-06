@@ -10,6 +10,7 @@ Project for Gro Hackathon held in Nairobi, 5th Mar 2016
 Make sure the following system packages are required in order to install this app
 
 * postgresql
+* postgresql-contrib
 * python-psycopg2
 * libpq-dev
 * python-dev
