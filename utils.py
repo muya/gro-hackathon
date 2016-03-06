@@ -107,14 +107,30 @@ class NassUtils(object):
                 for state in constants.states_list:
                     curr_state_data = []
                     nass_query.get_payload["state_alpha"] = state
-                    curr_state_data = self.fetch_records(nass_query)
-                    print "Record count for state [%s]: %s" % (
-                        state, len(curr_state_data))
-                    curr_year_data = (
-                        curr_year_data + curr_state_data)
+                    # first count approx records per state
+                    curr_state_record_count = self.fetch_record_count(nass_query)
+
+                    if curr_state_record_count <= 50000:
+                        curr_state_data = self.fetch_records(nass_query)
+                        print "Record count for state [%s]: %s" % (
+                            state, len(curr_state_data))
+                        curr_year_data = (
+                            curr_year_data + curr_state_data)
+                    else:
+                        # we have to go by Ag district :-(
+                        # use pre-downloaded list
+                        for asd in constants.ag_districts:
+                            curr_district_data = []
+                            nass_query.get_payload["asd_desc"] = asd
+                            curr_district_data = self.fetch_records(nass_query)
+                            curr_state_data = (
+                                curr_state_data + curr_district_data
+                            )
+                            del(nass_query.get_payload["asd_desc"])
+
                     del(nass_query.get_payload["state_alpha"])
 
-                    # if curr year data has exceeded 150000, write out and
+                    # if curr year data has exceeded 50000, write out and
                     # empty array
                     if len(curr_year_data) > 50000:
                         curr_year_partial_filename = "%s%s_%s.json" % (
