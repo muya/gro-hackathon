@@ -49,7 +49,6 @@ class NassUtils(object):
         r_count_estimate = self.nass_api_client(
             "get_counts",
             nass_query.get_payload)
-        print "Size estimate received from API: %s" % r_count_estimate.content
 
         record_count = json.loads(r_count_estimate.content).get("count")
         return record_count
