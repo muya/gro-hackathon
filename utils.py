@@ -1,6 +1,7 @@
 import requests
 import json
 import constants
+import hashlib
 
 
 class NassUtils(object):
@@ -11,6 +12,7 @@ class NassUtils(object):
     def __init__(self, **kwargs):
         self.default_nass_api_url = "http://quickstats.nass.usda.gov/api/"
         self.nass_api_key = kwargs.get("api_key", None)
+        self.data_dir = "data/"
 
     def nass_api_client(self, endpoint, payload={}, **kwargs):
         base_url = kwargs.get("base_url", self.default_nass_api_url)
@@ -51,9 +53,25 @@ class NassUtils(object):
         fetched_data = json.loads(records.content).get("data") or []
         return fetched_data
 
+    def write_out_json_data(self, data, filename):
+        """
+        Writes out the JSON data to a file
+        """
+        with open(filename, "w") as f:
+            json.dump(data, f)
+
+    def load_json_file_data(self, filename):
+        with open(filename, "r") as f:
+            data = json.load(f)
+
+        return data
+
     def fetch_data_in_single_batch(self, nass_query):
         all_data = self.fetch_records(nass_query)
-        return all_data
+        # write out to file (we need a unique name)
+        self.write_out_json_data(
+            all_data, "%s%s.json" % (
+                self.data_dir, hashlib.sha1(b"%s" % nass_query).hexdigest()))
 
     def fetch_data_in_annual_batches(self, nass_query, batch_count, **kwargs):
         fetch_by_state = kwargs.get("fetch_by_state", False)
@@ -90,10 +108,10 @@ class NassUtils(object):
                     # if curr year data has exceeded 150000, write out and
                     # empty array
                     if len(curr_year_data) > 100000:
-                        curr_year_partial_filename = "data/%s_%s.json" % (
-                            curr_year, state)
-                        with open(curr_year_partial_filename, "w") as f:
-                            json.dump(curr_year_data, f)
+                        curr_year_partial_filename = "%s%s_%s.json" % (
+                            self.data_dir, curr_year, state)
+                        self.write_out_json_data(
+                            curr_year_data, curr_year_partial_filename)
 
                         curr_year_data = []
             else:
@@ -101,12 +119,9 @@ class NassUtils(object):
 
             # write out curr year data to file if we've reached 150k yearly,
             # or if this is the last one
-            curr_year_filename = "data/%s.json" % curr_year
-            with open(curr_year_filename, "w") as f:
-                json.dump(curr_year_data, f)
-
-            # all_data = all_data + curr_year_data
-            # break
+            curr_year_filename = "%s%s.json" % (self.data_dir, curr_year)
+            self.write_out_json_data(
+                curr_year_data, curr_year_filename)
 
         return all_data
 
@@ -132,16 +147,20 @@ class NassUtils(object):
             possible_time_periods = int(total_estimated_rc / batch_size) + 1
 
             if possible_time_periods > total_years:
-                print "More than %s records per year, we'll process by state" % batch_size
-                fetched_data = self.fetch_data_in_annual_batches(
+                print (
+                    "More than %s records per year, we'll process by state" % (
+                        batch_size))
+                self.fetch_data_in_annual_batches(
                     nass_query, total_years, fetch_by_state=True)
             else:
-                print "Processing will be split into %s time periods" % possible_time_periods
-                fetched_data = self.fetch_data_in_annual_batches(
+                print (
+                    "Processing will be split into %s time periods" % (
+                        possible_time_periods))
+                self.fetch_data_in_annual_batches(
                     nass_query, total_years)
         else:
             print "Data will be fetched in a single batch"
-            fetched_data = self.fetch_data_in_single_batch(nass_query)
+            self.fetch_data_in_single_batch(nass_query)
 
         # print fetched_data
-        print "Record count: %s" % len(fetched_data)
+        print "Fetch data completed!"
