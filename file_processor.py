@@ -54,10 +54,17 @@ class NassJSONDataProcessor(object):
                 asyncore.loop(*args, **kwargs)
 
                 continue_processing = True
+                failed_tries = 0
 
-                while continue_processing:
-                    time.sleep(2)
-                    files_processed = self.process_data_files()
+                while continue_processing and failed_tries < 3:
+                    try:
+                        time.sleep(3)
+                        files_processed = self.process_data_files()
+                        failed_tries = 0
+                    except Exception, e:
+                        print "Exception thrown while processing data file... will retry..."
+                        failed_tries = failed_tries + 1
+                        continue
 
                     if not files_processed and not os.path.isfile(constants.HARVEST_LOCK_FILE):
                         continue_processing = False
