@@ -61,13 +61,14 @@ class NassJSONDataProcessor(object):
                         time.sleep(3)
                         files_processed = self.process_data_files()
                         failed_tries = 0
+
+                        if not files_processed and not os.path.isfile(constants.HARVEST_LOCK_FILE):
+                            continue_processing = False
                     except Exception, e:
+                        print "Exception while processing data files: \n%s" % e
                         print "Exception thrown while processing data file... will retry..."
                         failed_tries = failed_tries + 1
                         continue
-
-                    if not files_processed and not os.path.isfile(constants.HARVEST_LOCK_FILE):
-                        continue_processing = False
 
                 print (
                     "Both fetch data and data processing are complete... "
